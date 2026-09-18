@@ -1,0 +1,16 @@
+{
+  "name": "secure-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Correctly hardened JWT auth server (authorized security lab reference target).",
+  "type": "commonjs",
+  "main": "src/server.js",
+  "scripts": {
+    "genkeys": "node src/keys/generate.js",
+    "start": "node src/keys/generate.js && node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "target": "http://localhost:4000",
+  "timestamp": "2026-09-18T00:42:29.245744+00:00",
+  "signing_capability": "GAINED via alg:none",
+  "summary": {
+    "confirmed": 5,
+    "total": 7
+  },
+  "findings": [
+    {
+      "probe": "none_alg",
+      "verdict": "CONFIRMED",
+      "severity": "CRITICAL",
+      "cwe": "CWE-347",
+      "evidence": {
+        "forged_token": "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJhbGljZSIsInVz...(truncated)",
+        "response_snippet": "{\"secret_data\":\"FLAG{vulnerable-jwt-admin-access}\",\"role\":\"admin\"}",
+        "http_status": 200
+      },
+      "remediation": "Pin accepted algorithms explicitly (e.g. verify with algorithms=['RS256']) and reject any token whose 'alg' is 'none' or otherwise unexpected. Never let the token header choose the verification algorithm."
+    },
+    {
+      "probe": "weak_secret",
+      "verdict": "CONFIRMED",
+      "severity": "CRITICAL",
+      "cwe": "CWE-326",
+      "evidence": {
+        "forged_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInV...(truncated)",
+        "response_snippet": "{\"secret_data\":\"FLAG{vulnerable-jwt-admin-access}\",\"role\":\"admin\"}",
+        "http_status": 200
+      },
+      "remediation": "Use a high-entropy, randomly generated signing secret of at least 256 bits, kept out of source control and rotated if exposure is suspected. Prefer asymmetric signing (RS256/ES256) so the verification key is not a shared secret."
+    },
+    {
+      "probe": "alg_confusion",
+      "verdict": "CONFIRMED",
+      "severity": "CRITICAL",
+      "cwe": "CWE-347",
+      "evidence": {
+        "forged_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInV...(truncated)",
+        "response_snippet": "{\"secret_data\":\"FLAG{vulnerable-jwt-admin-access}\",\"role\":\"admin\"}",
+        "http_status": 200
+      },
+      "remediation": "Pin the verification algorithm explicitly (verify with algorithms=['RS256']) and never accept HS256 on an RSA-keyed server, so the public key can never be used as an HMAC secret."
+    },
+    {
+      "probe": "signature_bypass",
+      "verdict": "NOT_VULNERABLE",
+      "severity": "CRITICAL",
+      "cwe": "CWE-347",
+      "evidence": {
+        "forged_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInV...(truncated)",
+        "response_snippet": "{\"error\":\"invalid HS256 signature\"}",
+        "http_status": 401
+      },
+      "remediation": "Always verify the token signature before trusting any claim. Reject tokens whose signature does not match the payload; never read claims from an unverified or decode-only token."
+    },
+    {
+      "probe": "null_signature",
+      "verdict": "NOT_VULNERABLE",
+      "severity": "CRITICAL",
+      "cwe": "CWE-347",
+      "evidence": {
+        "forged_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInV...(truncated)",
+        "response_snippet": "{\"error\":\"invalid HS256 signature\"}",
+        "http_status": 401
+      },
+      "remediation": "Always verify the signature is present and non-empty before processing claims. A missing or blank signature must be rejected regardless of the alg header."
+    },
+    {
+      "probe": "jwk_injection",
+      "verdict": "CONFIRMED",
+      "severity": "CRITICAL",
+      "cwe": "CWE-347",
+      "evidence": {
+        "forged_token": "eyJhbGciOiJSUzI1NiIsImp3ayI6eyJlIjoiQVFBQiIsImt0eSI6IlJTQSIs...(truncated)",
+        "response_snippet": "{\"secret_data\":\"FLAG{vulnerable-jwt-admin-access}\",\"role\":\"admin\"}",
+        "http_status": 200
+      },
+      "remediation": "Never use a public key embedded in the token header for verification. Always load the trusted public key from a server-side trusted source only. Reject any token containing a jwk, jku, or x5u header."
+    },
+    {
+      "probe": "expiration",
+      "verdict": "CONFIRMED",
+      "severity": "HIGH",
+      "cwe": "CWE-613",
+      "evidence": {
+        "forged_token": "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJhbGljZSIsInVz...(truncated)",
+        "response_snippet": "{\"username\":\"alice\",\"role\":\"user\"}",
+        "http_status": 200
+      },
+      "remediation": "Enforce the 'exp' claim on every request and reject expired tokens (never set ignoreExpiration). Keep token lifetimes short and validate 'exp', 'nbf', and 'iat' during verification."
+    }
+  ]
+}
