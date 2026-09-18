@@ -1,8 +1,11 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
+
 WORKDIR /app
 
-COPY . .
-RUN pip install --no-cache-dir -e .
+COPY requirements.txt .
 
-# Overridden by docker-compose; audits the vulnerable server on the compose network.
-CMD ["jwtaudit", "audit", "--base-url", "http://vulnerable-server:4000"]
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD uvicorn app:app --host 0.0.0.0 --port $PORT
